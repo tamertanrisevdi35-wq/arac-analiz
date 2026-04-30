@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVDataPro - Kapsaml&#305; &Ccedil;evresel Analiz Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #0F172A; scroll-behavior: smooth; }
+        .gradient-text { background: linear-gradient(90deg, #059669, #2563EB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sim-bg { background: linear-gradient(135deg, #1E293B, #0F172A); color: #F8FAFC; }
+        .custom-table th { background-color: #1E293B; color: #F8FAFC; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; padding: 12px; }
+        .custom-table td { padding: 12px; border-bottom: 1px solid #E2E8F0; font-size: 0.8rem; }
+        .custom-table tr:nth-child(even) { background-color: #F8FAFC; }
+        #qr-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        #qr-modal.active { display: flex; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tighter"><span class="text-[#10B981]">EV</span>DataPro <span class="text-xs font-normal text-gray-400">v6.0 Final</span></h1>
+            <nav class="flex gap-4 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                <a href="#hizli-bakis" class="hover:text-[#10B981] transition">H&#305;zl&#305; Bak&#305;&#351;</a>
+                <a href="#lca-matrix" class="hover:text-[#10B981] transition">LCA Verileri</a>
+                <a href="#analiz-motoru" class="hover:text-indigo-600 transition">Analiz</a>
+                <a href="#grafik-paneli" class="hover:text-[#2563EB] transition">Grafikler</a>
+                <a href="#share-section" class="text-indigo-600 border-l pl-4 font-black">QR Kod</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-10 space-y-20">
+        
+        <!-- GÝRÝÞ VE HIZLI BAKIÞ -->
+        <section id="hizli-bakis" class="space-y-10 text-center">
+            <div class="space-y-4">
+                <h2 class="text-4xl md:text-5xl font-black leading-tight tracking-tight">Elektrikli Ara&ccedil;lar Ger&ccedil;ekten<br><span class="gradient-text">&Ccedil;evre Dostu mu?</span></h2>
+                <p class="text-gray-500 max-w-2xl mx-auto font-medium">T&uuml;rkiye enerji karma&#351;&#305;kl&#305;&#287;&#305;na ve ya&#351;am d&ouml;ng&uuml;s&uuml; verilerine dayal&#305; bilimsel kar&#351;&#305;la&#351;t&#305;rma.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto text-left">
+                <div class="bg-white border-t-8 border-red-500 rounded-3xl p-8 shadow-sm card-hover">
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="text-4xl">&#128663;</span>
+                        <h3 class="text-xl font-black text-red-600 uppercase italic">Fosil Yak&#305;tl&#305; (ICEV)</h3>
+                    </div>
+                    <ul class="space-y-3 text-sm font-semibold text-gray-600">
+                        <li class="flex items-start gap-2"><span>&cross;</span> <span><b>D&uuml;&#351;&uuml;k Verim:</b> Enerjinin y&uuml;zde 80'i &#305;s&#305; olarak bo&#351;a gider.</span></li>
+                        <li class="flex items-start gap-2"><span>&cross;</span> <span><b>Hava Kirlili&#287;i:</b> S&uuml;rekli egzoz emisyonu ve toksik gaz yayar.</span></li>
+                        <li class="flex items-start gap-2"><span>&cross;</span> <span><b>S&uuml;rekli Zarar:</b> Kilometre artt&#305;k&ccedil;a do&#287;aya verdi&#287;i zarar katlan&#305;r.</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white border-t-8 border-emerald-500 rounded-3xl p-8 shadow-sm card-hover">
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="text-4xl">&#9889;</span>
+                        <h3 class="text-xl font-black text-emerald-600 uppercase italic">Elektrikli (BEV)</h3>
+                    </div>
+                    <ul class="space-y-3 text-sm font-semibold text-gray-600">
+                        <li class="flex items-start gap-2"><span>&check;</span> <span><b>Y&uuml;ksek Verim:</b> Enerjiyi y&uuml;zde 90 ba&#351;ar&#305;yla harekete d&ouml;n&uuml;&#351;t&uuml;r&uuml;r.</span></li>
+                        <li class="flex items-start gap-2"><span>&check;</span> <span><b>Temiz Hava:</b> Egzoz yoktur, s&#305;f&#305;r do&#287;rudan emisyon sa&#287;lar.</span></li>
+                        <li class="flex items-start gap-2"><span>&check;</span> <span><b>Bor&ccedil; &Ouml;deme:</b> Kulland&#305;k&ccedil;a &uuml;retimden gelen karbon borcunu s&#305;f&#305;rlar.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- LCA DETAYLI MATRÝS -->
+        <section id="lca-matrix" class="max-w-6xl mx-auto bg-white rounded-3xl p-6 md:p-10 shadow-2xl border border-gray-100">
+            <h3 class="text-2xl font-black mb-8 text-gray-900 border-l-8 border-indigo-500 pl-4 uppercase tracking-tight">K&uuml;m&uuml;latif Emisyon Matrisi (Ya&#351;am D&ouml;ng&uuml;s&uuml; Verileri)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left custom-table">
+                    <thead>
+                        <tr>
+                            <th>Parametre</th>
+                            <th class="bg-slate-50 text-slate-900">ICEV (Fosil)</th>
+                            <th class="bg-indigo-50 text-indigo-900">BEV (T&uuml;rkiye Mix)</th>
+                            <th class="bg-red-50 text-red-900">BEV (%100 K&ouml;m&uuml;r)</th>
+                            <th class="bg-emerald-50 text-emerald-900">BEV (%100 Ye&#351;il)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-bold">&Uuml;retim A&#351;amas&#305; Karbon Y&uuml;k&uuml;</td>
+                            <td>6.5 Ton CO2e</td>
+                            <td>12.5 Ton CO2e</td>
+                            <td>14.0 Ton CO2e</td>
+                            <td class="text-emerald-600 font-bold">8.5 Ton CO2e</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">Kilometre Ba&#351;&#305; Emisyon (g/km)</td>
+                            <td>215g (ICE)</td>
+                            <td>88g (TR)</td>
+                            <td class="text-red-600">165g (Coal)</td>
+                            <td class="text-emerald-600 font-bold">5g (Green)</td>
+                        </tr>
+                        <tr class="bg-indigo-50 bg-opacity-30 font-bold">
+                            <td class="text-indigo-900 underline">TOPLAM SALINIM (100.000 KM)</td>
+                            <td>28.0 Ton CO2e</td>
+                            <td class="text-indigo-700">21.3 Ton CO2e</td>
+                            <td class="text-red-700">30.5 Ton CO2e</td>
+                            <td class="text-emerald-700">9.0 Ton CO2e</td>
+                        </tr>
+                        <tr class="bg-indigo-100 bg-opacity-40 font-bold">
+                            <td class="text-indigo-950 underline">TOPLAM SALINIM (200.000 KM)</td>
+                            <td>49.5 Ton CO2e</td>
+                            <td class="text-indigo-900">30.1 Ton CO2e</td>
+                            <td class="text-red-900">47.0 Ton CO2e</td>
+                            <td class="text-emerald-800">9.5 Ton CO2e</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-6 italic">* Veriler &uuml;retim borcu ve operasyonel emisyonlar&#305;n toplam&#305;n&#305; (Cradle-to-Grave) temsil eder.</p>
+        </section>
+
+        <!-- ANALÝZ MOTORU -->
+        <section id="analiz-motoru" class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl p-8 shadow-xl border border-indigo-100 max-w-4xl mx-auto">
+            <h3 class="text-2xl font-black text-center mb-6 uppercase tracking-tight text-indigo-950">Geli&#351;mi&#351; LCA Sim&uuml;lat&ouml;r&uuml;</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
+                <div>
+                    <label class="block text-[10px] font-black text-indigo-400 uppercase mb-2">Referans Segment</label>
+                    <input type="text" id="ai-car" placeholder="&Ouml;rn: Dizel SUV" class="w-full bg-white border border-indigo-100 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-bold transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-indigo-400 uppercase mb-2">Y&#305;ll&#305;k Mesafe (km)</label>
+                    <input type="number" id="ai-km" placeholder="&Ouml;rn: 15000" class="w-full bg-white border border-indigo-100 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-bold transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-indigo-400 uppercase mb-2">&#350;ehir / B&ouml;lge</label>
+                    <input type="text" id="ai-location" placeholder="&Ouml;rn: &#304;stanbul" class="w-full bg-white border border-indigo-100 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-bold transition-all text-sm">
+                </div>
+            </div>
+            <button id="ai-submit" class="w-full bg-indigo-600 hover:bg-slate-900 text-white font-black py-4 rounded-xl transition-all shadow-lg uppercase tracking-widest text-xs flex items-center justify-center gap-3">
+                <span>Derinlemesine Analiz Et</span>
+                <span class="text-lg">&#128301;</span>
+            </button>
+            <div id="ai-loading" class="hidden mt-8 flex flex-col items-center">
+                <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p class="text-indigo-600 mt-2 font-bold text-[10px] uppercase">Veriler Hesaplan&#305;yor...</p>
+            </div>
+            <div id="ai-result" class="hidden mt-8"></div>
+        </section>
+
+        <!-- GRAFÝK PANELÝ -->
+        <section id="grafik-paneli" class="sim-bg rounded-3xl p-10 md:p-16 shadow-2xl">
+            <h3 class="text-3xl font-black mb-10 border-l-8 border-blue-500 pl-6 uppercase tracking-tighter text-white">Bilimsel Analiz Grafik Paneli</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white bg-opacity-5 p-8 rounded-3xl border border-white border-opacity-10 backdrop-blur-md">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-blue-400 mb-8 text-center">&Ccedil;evresel Etki Analizi (Radar)</h4>
+                    <div class="h-80"><canvas id="radarChart"></canvas></div>
+                </div>
+                <div class="bg-white bg-opacity-5 p-8 rounded-3xl border border-white border-opacity-10 backdrop-blur-md">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-emerald-400 mb-8 text-center">Enerji Verimlili&#287;i Projeksiyonu</h4>
+                    <div class="h-80"><canvas id="lineChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QR KOD VE PAYLAÞIM -->
+        <section id="share-section" class="max-w-3xl mx-auto bg-slate-900 rounded-3xl p-10 text-center text-white shadow-2xl">
+            <h3 class="text-2xl font-black mb-4 tracking-tighter uppercase">Raporu Telefonuna G&ouml;nder &#128241;</h3>
+            <p class="text-xs text-gray-400 mb-8">Projeyi GitHub Pages &uuml;zerinden yay&#305;nlad&#305;&#287;&#305;n&#305;zda QR kod aktif hale gelir.</p>
+            <div class="flex flex-col items-center gap-6">
+                <div class="bg-white p-4 rounded-3xl inline-block" id="qr-container">
+                    <img id="qr-image" src="" alt="QR" class="w-48 h-48">
+                </div>
+                <div class="w-full max-w-sm space-y-2 text-left">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest">GitHub Web Adresinizi Girin</label>
+                    <input type="text" id="share-url" placeholder="https://kullaniciadiniz.github.io/projeniz" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-xs outline-none focus:ring-2 focus:ring-emerald-400 text-emerald-300 font-bold">
+                </div>
+                <button onclick="document.getElementById('qr-modal').classList.add('active')" class="bg-emerald-500 hover:bg-emerald-400 text-white px-10 py-3 rounded-full font-black text-[10px] uppercase tracking-widest transition-all">Tam Ekran QR G&ouml;ster</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- QR Modal -->
+    <div id="qr-modal" onclick="this.classList.remove('active')">
+        <div class="bg-white p-12 rounded-[40px] text-center shadow-2xl" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-black mb-8 text-gray-900 uppercase">Taray&#305;n ve Ba&#351;lat&#305;n</h2>
+            <img id="qr-image-large" src="" alt="QR" class="w-72 h-72 mx-auto mb-8">
+            <p class="text-[10px] text-gray-400 mb-8 uppercase font-bold tracking-widest">Ak&#305;ll&#305; telefon kameras&#305; ile okutun</p>
+            <button onclick="document.getElementById('qr-modal').classList.remove('active')" class="bg-slate-900 text-white px-12 py-4 rounded-full font-black text-[10px] uppercase tracking-widest transition-transform hover:scale-105">Kapat</button>
+        </div>
+    </div>
+
+    <script>
+        // --- QR KOD MOTORU ---
+        const qrImg = document.getElementById('qr-image');
+        const qrImgLarge = document.getElementById('qr-image-large');
+        const urlInput = document.getElementById('share-url');
+
+        function updateQR() {
+            let url = urlInput.value.trim() || window.location.href;
+            if(url.startsWith('file')) url = "https://evdatapro.github.io/demo"; 
+            const api = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(url)}&bgcolor=ffffff&color=000000&margin=10`;
+            qrImg.src = api;
+            qrImgLarge.src = api;
+        }
+
+        urlInput.addEventListener('input', updateQR);
+        window.onload = () => { updateQR(); initCharts(); };
+
+        // --- GRAFÝKLER (CHART.JS) ---
+        function initCharts() {
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Karbon Ayak Ýzi', 'Fosil Baðýmlýlýðý', 'Tailpipe Emisyon', 'Maden Talebi', 'Hava Kalitesi'],
+                    datasets: [
+                        { label: 'ICEV (Fosil)', data: [90, 95, 85, 20, 25], borderColor: '#EF4444', backgroundColor: 'rgba(239, 68, 68, 0.2)', borderWidth: 2 },
+                        { label: 'BEV (T&uuml;rkiye)', data: [35, 25, 0, 90, 95], borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.3)', borderWidth: 2 }
+                    ]
+                },
+                options: { 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#E2E8F0', font: { size: 10, weight: 'bold' } } } },
+                    scales: { r: { grid: { color: 'rgba(255,255,255,0.05)' }, angleLines: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#94A3B8', font: { weight: 'bold' } }, ticks: { display: false } } }
+                }
+            });
+
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['0km', '40k', '80k', '120k', '160k', '200k'],
+                    datasets: [
+                        { label: 'ICEV Verimliliði %', data: [28, 26, 24, 22, 20, 18], borderColor: '#EF4444', tension: 0.3, borderDash: [5,5] },
+                        { label: 'BEV Verimliliði %', data: [88, 87, 86, 85, 84, 83], borderColor: '#3B82F6', tension: 0.3, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }
+                    ]
+                },
+                options: { 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#E2E8F0', font: { weight: 'bold' } } } },
+                    scales: { y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B' } }, x: { grid: { display: false }, ticks: { color: '#64748B' } } }
+                }
+            });
+        }
+
+        // --- ANALÝZ MOTORU ---
+        document.getElementById('ai-submit').addEventListener('click', () => {
+            const car = document.getElementById('ai-car').value;
+            const km = parseInt(document.getElementById('ai-km').value);
+            const loc = document.getElementById('ai-location').value;
+
+            if(!car || !km || !loc) { alert("L&uuml;tfen alanlar&#305; doldurun!"); return; }
+
+            document.getElementById('ai-loading').classList.remove('hidden');
+            document.getElementById('ai-result').classList.add('hidden');
+
+            setTimeout(() => {
+                const ICEV_Emiss = 0.215; 
+                const TR_EV_Emiss = 0.088; 
+                const ICEV_Prod = 6500; 
+                const EV_Prod = 12500;
+                const netDebt = EV_Prod - ICEV_Prod;
+                const savingsPerKm = ICEV_Emiss - TR_EV_Emiss;
+                const parityKm = netDebt / savingsPerKm;
+
+                document.getElementById('ai-result').innerHTML = `
+                    <div class="bg-white rounded-3xl p-8 border border-indigo-100 shadow-lg space-y-6">
+                        <div class="flex justify-between items-center border-b pb-4">
+                            <h4 class="font-black text-indigo-900 uppercase text-xs tracking-widest">${loc} Analiz Raporu</h4>
+                            <span class="text-[10px] font-black text-gray-400 bg-gray-100 px-3 py-1 rounded-full">${car}</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                                <span class="block text-[10px] text-gray-400 font-black mb-1 uppercase tracking-widest">E&#351;itlenme Noktas&#305;</span>
+                                <span class="text-3xl font-black text-indigo-600">${Math.round(parityKm).toLocaleString()} KM</span>
+                                <p class="text-[10px] text-gray-500 mt-2 font-medium">Bu kilometreden sonra do&#287;a i&ccedil;in net kazan&ccedil; ba&#351;lar.</p>
+                            </div>
+                            <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
+                                <span class="block text-[10px] text-gray-400 font-black mb-1 uppercase tracking-widest">10 Y&#305;ll&#305;k Karbon Tasarrufu</span>
+                                <span class="text-3xl font-black text-emerald-600">${(((savingsPerKm*km*10)-netDebt)/1000).toFixed(1)} Ton</span>
+                                <p class="text-[10px] text-gray-500 mt-2 font-medium">${Math.round(((savingsPerKm*km*10)-netDebt)/22)} adet yeti&#351;kin a&#287;aca e&#351;de&#287;er.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('ai-result').classList.remove('hidden');
+                document.getElementById('ai-result').scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
